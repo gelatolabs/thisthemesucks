@@ -70,8 +70,24 @@ var room = {
     h: canvas.width / 2 * 0.645,
     x: canvas.width / 4,
     y: canvas.height / 4,
+
     ready: false
 };
+
+var dude = {
+    w: canvas.width * 0.05,
+    h: canvas.width * 0.075,
+    x: 0,
+    y: canvas.height - canvas.width * 0.075,
+
+    dragging: false,
+    ready: false
+};
+dude.img = new Image();
+dude.img.onload = function() {
+    dude.ready = true;
+}
+dude.img.src = "img/dude.png";
 
 /* useful functions */
 var pointOver = function(p, a) {
@@ -89,6 +105,8 @@ canvas.addEventListener('mouseup', function(evt) {
 var render = function() {
     if (bg.ready)
         ctx.drawImage(bg.img, bg.x, bg.y, bg.w, bg.h);
+    if (dude.ready)
+        ctx.drawImage(dude.img, dude.x, dude.y, dude.w, dude.h);
 };
 
 /* main game loop */
@@ -109,3 +127,8 @@ requestAnimationFrame =
 render();
 requestAnimationFrame(main);
 main();
+
+setInterval(function() {
+    if(!dude.dragging && dude.x <= bg.w)
+        dude.x += 5;
+}, 10);
