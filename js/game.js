@@ -67,16 +67,11 @@ bg.img.src = "img/bg.png";
 
 var room = {
     w: canvas.width / 2,
-    h: canvas.height / 2,
+    h: canvas.width / 2 * 0.645,
     x: canvas.width / 4,
     y: canvas.height / 4,
     ready: false
 };
-room.img = new Image();
-room.img.onload = function() {
-    room.ready = true;
-};
-room.img.src = "img/room.png";
 
 /* useful functions */
 var pointOver = function(p, a) {
@@ -94,8 +89,6 @@ canvas.addEventListener('mouseup', function(evt) {
 var render = function() {
     if (bg.ready)
         ctx.drawImage(bg.img, bg.x, bg.y, bg.w, bg.h);
-    if (room.ready)
-        ctx.drawImage(room.img, room.x, room.y, room.w, room.h);	
 };
 
 /* main game loop */
