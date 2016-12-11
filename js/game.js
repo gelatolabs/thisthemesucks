@@ -95,17 +95,41 @@ var pointOver = function(p, a) {
 };
 
 /* real events */
+canvas.addEventListener('mousedown', function(evt) {
+    var m = {
+        x: evt.pageX - canvas.offsetLeft,
+        y: evt.pageY - canvas.offsetTop
+    };
+
+    if(pointOver(m, dude) && dude.y == bg.h - dude.h)
+        dude.dragging = true;
+});
+
+canvas.addEventListener('mousemove', function(evt) {
+    var m = {
+        x: evt.pageX - canvas.offsetLeft,
+        y: evt.pageY - canvas.offsetTop
+    };
+
+    if(dude.dragging) {
+        dude.x = m.x - dude.w / 2;
+        dude.y = m.y;
+    }
+});
+
 canvas.addEventListener('mouseup', function(evt) {
     var m = {
         x: evt.pageX - canvas.offsetLeft,
         y: evt.pageY - canvas.offsetTop
     };
+
+    dude.dragging = false;
 });
 
 var render = function() {
-    if (bg.ready)
+    if(bg.ready)
         ctx.drawImage(bg.img, bg.x, bg.y, bg.w, bg.h);
-    if (dude.ready)
+    if(dude.ready)
         ctx.drawImage(dude.img, dude.x, dude.y, dude.w, dude.h);
 };
 
@@ -129,6 +153,6 @@ requestAnimationFrame(main);
 main();
 
 setInterval(function() {
-    if(!dude.dragging && dude.x <= bg.w)
-        dude.x += 5;
+    if(!dude.dragging && dude.y == bg.h - dude.h && dude.x <= bg.w)
+        dude.x += 3;
 }, 10);
