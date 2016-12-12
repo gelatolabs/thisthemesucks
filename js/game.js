@@ -65,20 +65,32 @@ bg.img.onload = function() {
 }
 bg.img.src = "img/bg.png";
 
-var room = {
-    w: canvas.width / 2,
-    h: canvas.width / 2 * 0.645,
-    x: canvas.width / 4,
-    y: canvas.height / 4,
-
-    ready: false
-};
+var walls = [
+    {
+        w: canvas.width * 0.0225,
+        h: canvas.width * 0.3225,
+        x: canvas.width * 0.75,
+        y: canvas.width * 0.1875
+    },
+    {
+        w: canvas.width * 0.5,
+        h: canvas.width * 0.0225,
+        x: canvas.width * 0.25,
+        y: canvas.width * 0.51
+    },
+    {
+        w: canvas.width * 0.0225,
+        h: canvas.width * 0.3225,
+        x: canvas.width * 0.2275,
+        y: canvas.width * 0.1875
+    }
+];
 
 var dude = {
     w: canvas.width * 0.05,
     h: canvas.width * 0.075,
     x: 0,
-    y: canvas.height - canvas.width * 0.075,
+    y: canvas.width * 0.675,
 
     dragging: false,
     ready: false
@@ -94,6 +106,11 @@ var pointOver = function(p, a) {
     return (p.x >= a.x && p.x <= (a.x + a.w) && p.y >= a.y && p.y <= (a.y + a.h));
 };
 
+var touching = function(a, b) {
+    return a.x + a.w > b.x && a.x < b.x + b.w &&
+           a.y + a.h > b.y && a.y < b.y + b.h;
+};
+
 /* real events */
 canvas.addEventListener('mousedown', function(evt) {
     var m = {
@@ -101,7 +118,7 @@ canvas.addEventListener('mousedown', function(evt) {
         y: evt.pageY - canvas.offsetTop
     };
 
-    if(pointOver(m, dude) && dude.y == bg.h - dude.h)
+    if(pointOver(m, dude) && dude.y == canvas.width * 0.675)
         dude.dragging = true;
 });
 
@@ -114,6 +131,12 @@ canvas.addEventListener('mousemove', function(evt) {
     if(dude.dragging) {
         dude.x = m.x - dude.w / 2;
         dude.y = m.y;
+
+        for(var i = 0; i < walls.length; i++)
+            if(touching(dude, walls[i])) {
+                alert("you suck");
+                break;
+             }
     }
 });
 
@@ -153,6 +176,8 @@ requestAnimationFrame(main);
 main();
 
 setInterval(function() {
-    if(!dude.dragging && dude.y == bg.h - dude.h && dude.x <= bg.w)
+    if(!dude.dragging && dude.y == canvas.width * 0.675 && dude.x <= bg.w)
         dude.x += 3;
+    else if(dude.x > bg.w)
+        dude.x = -bg.w / 2;
 }, 10);
