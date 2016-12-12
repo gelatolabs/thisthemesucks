@@ -86,20 +86,21 @@ var walls = [
     }
 ];
 
-var dude = {
-    w: canvas.width * 0.05,
-    h: canvas.width * 0.075,
-    x: 0,
-    y: canvas.width * 0.675,
-
-    dragging: false,
-    ready: false
+var room = {
+    w: canvas.width * 0.5,
+    h: canvas.width * 0.3225,
+    x: canvas.width * 0.25,
+    y: canvas.width * 0.1875
 };
+
+var dude = { ready: false };
 dude.img = new Image();
 dude.img.onload = function() {
     dude.ready = true;
 }
 dude.img.src = "img/dude.png";
+
+var dudes = [];
 
 /* useful functions */
 var pointOver = function(p, a) {
@@ -111,6 +112,19 @@ var touching = function(a, b) {
            a.y + a.h > b.y && a.y < b.y + b.h;
 };
 
+var resetDudes = function() {
+    for(var i = 0; i < 38; i++) {
+        dudes.push({
+            w: canvas.width * 0.05,
+            h: canvas.width * 0.075,
+            x: 0 - canvas.width * 0.5 * i,
+            y: canvas.width * 0.675,
+
+            dragging: false
+        });
+    }
+};
+
 /* real events */
 canvas.addEventListener('mousedown', function(evt) {
     var m = {
@@ -118,8 +132,9 @@ canvas.addEventListener('mousedown', function(evt) {
         y: evt.pageY - canvas.offsetTop
     };
 
-    if(pointOver(m, dude) && dude.y == canvas.width * 0.675)
-        dude.dragging = true;
+    for(var i = 0; i < dudes.length; i++)
+        if(pointOver(m, dudes[i]) && dudes[i].y == canvas.width * 0.675)
+            dudes[i].dragging = true;
 });
 
 canvas.addEventListener('mousemove', function(evt) {
@@ -128,16 +143,15 @@ canvas.addEventListener('mousemove', function(evt) {
         y: evt.pageY - canvas.offsetTop
     };
 
-    if(dude.dragging) {
-        dude.x = m.x - dude.w / 2;
-        dude.y = m.y;
+    for(var i = 0; i < dudes.length; i++)
+        if(dudes[i].dragging) {
+            dudes[i].x = m.x - dudes[i].w / 2;
+            dudes[i].y = m.y;
 
-        for(var i = 0; i < walls.length; i++)
-            if(touching(dude, walls[i])) {
-                alert("you suck");
-                break;
-             }
-    }
+            for(var j = 0; j < walls.length; j++)
+                if(touching(dudes[i], walls[j]))
+                    alert("you suck");
+        }
 });
 
 canvas.addEventListener('mouseup', function(evt) {
@@ -146,14 +160,20 @@ canvas.addEventListener('mouseup', function(evt) {
         y: evt.pageY - canvas.offsetTop
     };
 
-    dude.dragging = false;
+    for(var i = 0; i < dudes.length; i++)
+        if(dudes[i].dragging) {
+            dudes[i].dragging = false;
+            if(!touching(dudes[i], room))
+                dudes[i].x = bg.w;
+        }
 });
 
 var render = function() {
     if(bg.ready)
         ctx.drawImage(bg.img, bg.x, bg.y, bg.w, bg.h);
-    if(dude.ready)
-        ctx.drawImage(dude.img, dude.x, dude.y, dude.w, dude.h);
+    for(var i = 0; i < dudes.length; i++)
+        if(dudes[i].x > 0 && dudes[i].x < bg.w && dude.ready)
+            ctx.drawImage(dude.img, dudes[i].x, dudes[i].y, dudes[i].w, dudes[i].h);
 };
 
 /* main game loop */
@@ -171,13 +191,13 @@ requestAnimationFrame =
         || w.mozRequestAnimationFrame;
 
 /* start game */
+resetDudes();
 render();
 requestAnimationFrame(main);
 main();
 
 setInterval(function() {
-    if(!dude.dragging && dude.y == canvas.width * 0.675 && dude.x <= bg.w)
-        dude.x += 3;
-    else if(dude.x > bg.w)
-        dude.x = -bg.w / 2;
-}, 10);
+    for(var i = 0; i < dudes.length; i++)
+        if(!dudes[i].dragging && dudes[i].y == canvas.width * 0.675 && dudes[i].x <= bg.w)
+            dudes[i].x += dudes[i].w;
+}, 250);
